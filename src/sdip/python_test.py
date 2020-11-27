@@ -11,15 +11,15 @@ delta_w = np.array([0,0,0,0,0,0,0,0,0,0,0])
 
 def log(log_message):
     """
-    
+
     DESCRIPTION:
     - Adds a log message "log_message" to a log file.
-    
+
     """
-    
-    # open the log file and make sure that it's closed properly at the end of the 
+
+    # open the log file and make sure that it's closed properly at the end of the
     # block, even if an exception occurs:
-    with open("/home/felipe/Documentos/abet/openai/src/sdip/log.log", "a") as log_file:
+    with open("/home/turing/Repos/openai/src/sdip/log.xor", "a") as log_file:
         # write the log message to logfile:
         log_file.write(log_message)
         log_file.write("\n") # (so the next message is put on a new line)
@@ -55,7 +55,7 @@ def q_hat(state, action, w):
     X = state_action_to_features(state, action)
     output = np.dot(X,w)
     return output
-    
+
 # epislon-greedy:
 def get_action(state, w):
     actions = [-40, 40]
@@ -78,11 +78,11 @@ for i_episode in range(160):
         # update w
         delta_w = (alpha*(reward + gamma*q_hat(observation, get_action(observation, w), w) - q_hat(state, action, w)))*state_action_to_features(state, action)
         w = np.add(w,delta_w)
-        
+
         #print(w)
         #print(reward)
         state = observation
-        
+
         if done:
             print("Episode finished after " + str(t+1) + " timesteps")
             timesteps += [t+1]

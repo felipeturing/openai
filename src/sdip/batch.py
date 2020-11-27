@@ -9,13 +9,13 @@ actions = [-40, 40]
 
 def log(log_message):
     """
-    
+
     DESCRIPTION:
     - Adds a log message "log_message" to a log file.
-    
+
     """
-    
-    # open the log file and make sure that it's closed properly at the end of the 
+
+    # open the log file and make sure that it's closed properly at the end of the
     # block, even if an exception occurs:
     with open("/home/felipe/Documentos/abet/openai/src/sdip/log_batch.log", "a") as log_file:
         # write the log message to logfile:
@@ -53,7 +53,7 @@ def q_hat(state, action, w):
     X_value = X(state, action)
     output = np.array(w*X_value)[0][0]
     return output
-    
+
 def pi(state, w):
     qs = []
     for action in actions:
@@ -61,7 +61,7 @@ def pi(state, w):
     max_index = np.argmax(qs)
     action = actions[max_index]
     return action
-    
+
 # generate experience data:
 D = {}
 index = 0
@@ -78,7 +78,7 @@ while index < 99:
         D[index]["S_"] = S_
         index += 1
         S = S_
-  
+
         if done:
             print("Episode finished after " + str(t+1) + " timesteps")
             break
@@ -102,8 +102,8 @@ while True:
         if index >= 99:
             index = 0
         else:
-            index += 1         
-        
+            index += 1
+
         # update w:
         sum_inv = 0
         sum = 0
@@ -116,11 +116,11 @@ while True:
             sum += X(St,At)*Rt_1
         w = np.linalg.pinv(sum_inv)*sum
         w = np.transpose(w)
-        
+
         #print(w)
         #print(reward)
         S = S_
-        
+
         if done:
             #print("Episode finished after " + str(t+1) + " timesteps")
             timesteps += [t+1]

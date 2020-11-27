@@ -61,9 +61,9 @@ class CartPoleEnv(gym.Env):
         self._configure()
 
     def _configure(self, display=None):
-        self.display = display 
+        self.display = display
 
-    def _step(self, action):
+    def step(self, action):
         #assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
         state = self.state
         x = state.item(0)
@@ -74,7 +74,7 @@ class CartPoleEnv(gym.Env):
         phi_dot = state.item(5)
         u = action
         self.counter += 1
-        
+
         # (state_dot = func(state))
         def func(t, state, u):
             x = state.item(0)
@@ -84,39 +84,39 @@ class CartPoleEnv(gym.Env):
             theta_dot = state.item(4)
             phi_dot = state.item(5)
             state = np.matrix([[x],[theta],[phi],[x_dot],[theta_dot],[phi_dot]]) # this is needed for some weird reason
-            
+
             d1 = self.m0 + self.m1 + self.m2
             d2 = self.m1*self.l1 + self.m2*self.L1
             d3 = self.m2*self.l2
             d4 = self.m1*pow(self.l1,2) + self.m2*pow(self.L1,2) + self.I1
             d5 = self.m2*self.L1*self.l2
             d6 = self.m2*pow(self.l2,2) + self.I2
-            f1 = (self.m1*self.l1 + self.m2*self.L1)*self.g 
-            f2 = self.m2*self.l2*self.g    
-            
-            D = np.matrix([[d1, d2*cos(theta), d3*cos(phi)], 
+            f1 = (self.m1*self.l1 + self.m2*self.L1)*self.g
+            f2 = self.m2*self.l2*self.g
+
+            D = np.matrix([[d1, d2*cos(theta), d3*cos(phi)],
                     [d2*cos(theta), d4, d5*cos(theta-phi)],
                     [d3*cos(phi), d5*cos(theta-phi), d6]])
-            
+
             C = np.matrix([[0, -d2*sin(theta)*theta_dot, -d3*sin(phi)*phi_dot],
                     [0, 0, d5*sin(theta-phi)*phi_dot],
                     [0, -d5*sin(theta-phi)*theta_dot, 0]])
-                    
+
             G = np.matrix([[0], [-f1*sin(theta)], [-f2*sin(phi)]])
-            
+
             H  = np.matrix([[1],[0],[0]])
-            
+
             I = np.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
             O_3_3 = np.matrix([[0, 0, 0], [0, 0, 0], [0, 0, 0]])
             O_3_1 = np.matrix([[0], [0], [0]])
-            
+
             A_tilde = np.bmat([[O_3_3, I],[O_3_3, -np.linalg.inv(D)*C]])
             B_tilde = np.bmat([[O_3_1],[np.linalg.inv(D)*H]])
             W = np.bmat([[O_3_1],[np.linalg.inv(D)*G]])
-            state_dot = A_tilde*state + B_tilde*u + W  
+            state_dot = A_tilde*state + B_tilde*u + W
             return state_dot
-        
-        solver = ode(func) 
+
+        solver = ode(func)
         solver.set_integrator("dop853") # (Runge-Kutta)
         solver.set_f_params(u)
         t0 = 0
@@ -124,32 +124,32 @@ class CartPoleEnv(gym.Env):
         solver.set_initial_value(state0, t0)
         solver.integrate(self.tau)
         state=solver.y
-        
+
         #state_dot = func(0, state, u)
         #state = state + self.tau*state_dot
-        
+
         self.state = state
-        
+
         done =  x < -self.x_threshold \
                 or x > self.x_threshold \
                 or self.counter > 1000 \
                 or theta > 90*2*np.pi/360 \
-                or theta < -90*2*np.pi/360 
+                or theta < -90*2*np.pi/360
         done = bool(done)
 
         cost = 10*normalize_angle(theta) + \
                 10*normalize_angle(phi)
-                
+
         reward = -cost
-        
+
         return self.state, reward, done, {}
 
-    def _reset(self):
+    def reset(self):
         self.state = np.matrix([[0],[np.random.uniform(-0.1,0.1)],[0],[0],[0],[0]])
         self.counter = 0
         return self.state
 
-    def _render(self, mode='human', close=False):
+    def render(self, mode='human', close=False):
         if close:
             if self.viewer is not None:
                 self.viewer.close()
@@ -192,7 +192,7 @@ class CartPoleEnv(gym.Env):
             self.axle.add_attr(self.carttrans)
             self.axle.set_color(.5,.5,.8)
             self.viewer.add_geom(self.axle)
-            
+
             l,r,t,b = -polewidth/2,polewidth/2,polelen-polewidth/2,-polewidth/2
             pole2 = rendering.FilledPolygon([(l,b), (l,t), (r,t), (r,b)])
             pole2.set_color(.2,.6,.4)
@@ -207,7 +207,7 @@ class CartPoleEnv(gym.Env):
             self.axle2.add_attr(self.carttrans)
             self.axle2.set_color(.1,.5,.8)
             self.viewer.add_geom(self.axle2)
-            
+
             self.track = rendering.Line((0,carty), (screen_width,carty))
             self.track.set_color(0,0,0)
             self.viewer.add_geom(self.track)
@@ -219,7 +219,7 @@ class CartPoleEnv(gym.Env):
         self.poletrans2.set_rotation(-(state.item(2)-state.item(1)))
 
         return self.viewer.render(return_rgb_array = mode=='rgb_array')
-        
+
 def normalize_angle(angle):
     """
     3*pi gives -pi, 4*pi gives 0 etc, etc. (returns the negative difference
