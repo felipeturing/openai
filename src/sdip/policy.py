@@ -22,7 +22,7 @@ def log(log_message):
     
     # open the log file and make sure that it's closed properly at the end of the 
     # block, even if an exception occurs:
-    with open("/home/felipe/Documentos/abet/openai/src/sdip/log2.log", "a") as log_file:
+    with open("/home/turing/Repos/openai/src/sdip/log2.xor", "a") as log_file:
         # write the log message to logfile:
         log_file.write(log_message)
         log_file.write("\n") # (so the next message is put on a new line)
