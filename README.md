@@ -1,2 +1,3 @@
 # OpenAI
-> Walter J. Felipe Tolentino
+Run
+> *python_test.py*
