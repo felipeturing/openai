@@ -1,2 +1,2 @@
 # OpenAI
-- Walter J. Felipe Tolentino
+> Walter J. Felipe Tolentino
