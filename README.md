@@ -1,3 +1,3 @@
 # OpenAI
 Run
-> *python_test.py*
+> *sdip/python_test.py*
